@@ -1,13 +1,16 @@
 package org.example.GUI;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
+import org.springframework.http.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -39,25 +42,31 @@ public class GenerateScheduleButtonListener implements ActionListener {
             }
         }
 
+        RestTemplate restTemplate = new RestTemplate();
+
         // Convert the tasks to JSON
         ObjectMapper objectMapper = new ObjectMapper();
+        String tasksJSON = "";
         try {
-            //String json = objectMapper.writeValueAsString(tasks);
-            objectMapper.writeValue(new File("output.json"), tasks);
-          /*  // Send the JSON as an HTTP request
-            String url = "http://example.com/your-endpoint";
-            CloseableHttpClient httpClient = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+            tasksJSON = objectMapper.writeValueAsString(tasks);
+            //objectMapper.writeValue(new File("output.json"), tasks);
+        } catch (JsonProcessingException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Execute the request
-            HttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            // Handle the response as needed
+            //creating the request entity with the JSON body and headers
+            HttpEntity <String> requestEntity = new HttpEntity<>(tasksJSON, headers);
 
-            // Close the HttpClient
-            httpClient.close();*/
-        } catch (IOException ex) {
+            //sending the post request
+            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8081/tasks/create", HttpMethod.POST,requestEntity, String.class);
+
+            //access the response body
+            String responseBody = response.getBody();
+
+        } catch ( RestClientException ex) {
             ex.printStackTrace();
         }
     }
