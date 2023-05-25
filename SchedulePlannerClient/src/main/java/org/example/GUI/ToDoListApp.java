@@ -6,10 +6,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ToDoListApp extends JFrame {
     private DefaultListModel<String> taskListModel;
     private JList<String> taskList;
+
+    public DefaultListModel<String> getTaskListModel() {
+        return taskListModel;
+    }
+
     private class CustomListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -24,6 +34,80 @@ public class ToDoListApp extends JFrame {
             }
 
             return component;
+        }
+    }
+
+    private class AddTaskButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Create the dialog components
+            JPanel panel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.insets = new Insets(5, 5, 5, 5);
+
+            JTextField taskNameField = new JTextField(15);
+            JSpinner hourSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 24, 1));
+            JSpinner minuteSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));
+            JFormattedTextField startTimeField = new JFormattedTextField(createTimeFormatter());
+            JFormattedTextField endTimeField = new JFormattedTextField(createTimeFormatter());
+            endTimeField.setPreferredSize(new Dimension(50,20));
+            startTimeField.setPreferredSize(new Dimension(50,20));
+
+            // Add the components to the panel
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            panel.add(new JLabel("Task Name:"), gbc);
+            gbc.gridx = 1;
+            gbc.gridwidth = 3; // Set grid width for the task name field
+            panel.add(taskNameField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.gridwidth = 1; // Reset grid width
+            panel.add(new JLabel("Duration:"), gbc);
+            gbc.gridx = 1;
+            panel.add(hourSpinner, gbc);
+            gbc.gridx = 2;
+            panel.add(new JLabel("hours"), gbc);
+            gbc.gridx = 3;
+            panel.add(minuteSpinner, gbc);
+            gbc.gridx = 4;
+            panel.add(new JLabel("minutes"), gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 2;
+            panel.add(new JLabel("Start Time:"), gbc);
+            gbc.gridx = 1;
+            gbc.gridwidth = 3; // Set grid width for the start time field
+            panel.add(startTimeField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 3;
+            gbc.gridwidth = 1; // Reset grid width
+            panel.add(new JLabel("End Time:"), gbc);
+            gbc.gridx = 1;
+            gbc.gridwidth = 3; // Set grid width for the end time field
+            panel.add(endTimeField, gbc);
+
+            // Create the dialog
+            int result = JOptionPane.showConfirmDialog(null, panel, "Add Task", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (result == JOptionPane.OK_OPTION) {
+                // Get the selected values from the dialog components
+                String taskName = taskNameField.getText();
+                int hours = (int) hourSpinner.getValue();
+                int minutes = (int) minuteSpinner.getValue();
+                String startTime = startTimeField.getText();
+                String endTime = endTimeField.getText();
+
+                // Add the task to the list
+                String taskDetails = taskName + " (Duration: " + hours + " hours " + minutes + " minutes, Start: " + startTime + ", End: " + endTime + ")";
+                taskListModel.addElement(taskDetails);
+            }
+        }
+
+        private SimpleDateFormat createTimeFormatter() {
+            return new SimpleDateFormat("HH:mm");
         }
     }
     public ToDoListApp() {
@@ -44,15 +128,7 @@ public class ToDoListApp extends JFrame {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
 
-        addButton(buttonPanel, "Add Task", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String task = JOptionPane.showInputDialog(ToDoListApp.this, "Enter task:");
-                if (task != null && !task.isEmpty()) {
-                    taskListModel.addElement(task);
-                }
-            }
-        });
+        addButton(buttonPanel, "Add Task", new AddTaskButtonListener());
 
         addButton(buttonPanel, "Delete Task", new ActionListener() {
             @Override
@@ -64,13 +140,7 @@ public class ToDoListApp extends JFrame {
             }
         });
 
-        addButton(buttonPanel, "Generate Schedule", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO: Implement schedule generation logic
-                JOptionPane.showMessageDialog(ToDoListApp.this, "Schedule generated!");
-            }
-        });
+        addButton(buttonPanel, "Generate Schedule", new GenerateScheduleButtonListener(taskListModel));
 
         addButton(buttonPanel, "Logout", new ActionListener() {
             @Override
@@ -120,4 +190,5 @@ public class ToDoListApp extends JFrame {
             }
         });
     }
+
 }
