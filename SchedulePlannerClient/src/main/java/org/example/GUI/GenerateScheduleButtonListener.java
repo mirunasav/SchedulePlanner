@@ -3,20 +3,12 @@ package org.example.GUI;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,15 +50,15 @@ public class GenerateScheduleButtonListener implements ActionListener {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             //creating the request entity with the JSON body and headers
-            HttpEntity <String> requestEntity = new HttpEntity<>(tasksJSON, headers);
+            HttpEntity<String> requestEntity = new HttpEntity<>(tasksJSON, headers);
 
             //sending the post request
-            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8081/tasks/create", HttpMethod.POST,requestEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8081/tasks/create", HttpMethod.POST, requestEntity, String.class);
 
             //access the response body
             String responseBody = response.getBody();
 
-        } catch ( RestClientException ex) {
+        } catch (RestClientException ex) {
             ex.printStackTrace();
         }
     }

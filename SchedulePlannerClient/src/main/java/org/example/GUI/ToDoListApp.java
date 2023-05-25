@@ -1,16 +1,15 @@
 package org.example.GUI;
 
+import org.example.GUI.utilities.Utils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ToDoListApp extends JFrame {
     private DefaultListModel<String> taskListModel;
@@ -51,8 +50,8 @@ public class ToDoListApp extends JFrame {
             JSpinner minuteSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 59, 1));
             JFormattedTextField startTimeField = new JFormattedTextField(createTimeFormatter());
             JFormattedTextField endTimeField = new JFormattedTextField(createTimeFormatter());
-            endTimeField.setPreferredSize(new Dimension(50,20));
-            startTimeField.setPreferredSize(new Dimension(50,20));
+            endTimeField.setPreferredSize(new Dimension(50, 20));
+            startTimeField.setPreferredSize(new Dimension(50, 20));
 
             // Add the components to the panel
             gbc.gridx = 0;
@@ -97,12 +96,28 @@ public class ToDoListApp extends JFrame {
                 String taskName = taskNameField.getText();
                 int hours = (int) hourSpinner.getValue();
                 int minutes = (int) minuteSpinner.getValue();
+                int totalMinutesDuration = hours * 60 + minutes;
+
                 String startTime = startTimeField.getText();
                 String endTime = endTimeField.getText();
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");//make this a constant somewhere
+                //store the tasks in a list of tasks since i am already making them into objects
+                //so that in generateSchedule, I don't need to parse the tasks anymore
+                //to the taskListModel i can add task.toString();
 
-                // Add the task to the list
-                String taskDetails = taskName + " (Duration: " + hours + " hours " + minutes + " minutes, Start: " + startTime + ", End: " + endTime + ")";
-                taskListModel.addElement(taskDetails);
+                try {
+                    Utils.validateTask(new Task(taskName, totalMinutesDuration, timeFormat.parse(startTime), timeFormat.parse(endTime)));
+                    // Add the task to the list
+                    String taskDetails = taskName + " (Duration: " + hours + " hours " + minutes + " minutes, Start: " + startTime + ", End: " + endTime + ")";
+                    taskListModel.addElement(taskDetails);
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+                catch (Exception ex){
+                    StringBuilder errorMessage = new StringBuilder("Invalid task:");
+                    errorMessage.append(ex.getMessage());
+                    JOptionPane.showMessageDialog(null,errorMessage.toString(),"Invalid Task", JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
 
@@ -110,6 +125,7 @@ public class ToDoListApp extends JFrame {
             return new SimpleDateFormat("HH:mm");
         }
     }
+
     public ToDoListApp() {
         setTitle("To-Do List App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
