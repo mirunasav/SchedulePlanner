@@ -4,5 +4,3 @@ create table Users (
     PasswordHash varchar(255) NOT NULL,
     Salt varchar(255) NOT NULL
 )
-
-create sequence
