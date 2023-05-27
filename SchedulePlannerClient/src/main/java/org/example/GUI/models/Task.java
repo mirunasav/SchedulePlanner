@@ -1,4 +1,4 @@
-package org.example.GUI.ToDoList;
+package org.example.GUI.models;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

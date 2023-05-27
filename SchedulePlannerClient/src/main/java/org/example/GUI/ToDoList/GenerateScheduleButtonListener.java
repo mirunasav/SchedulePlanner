@@ -2,6 +2,8 @@ package org.example.GUI.ToDoList;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.GUI.models.Task;
+import org.example.GUI.rest.ClientWindow;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -19,9 +21,11 @@ import java.util.List;
 
 public class GenerateScheduleButtonListener implements ActionListener {
     private DefaultListModel<String> taskListModel;
+    private ClientWindow parent;
 
-    public GenerateScheduleButtonListener(DefaultListModel<String> taskListModel) {
+    public GenerateScheduleButtonListener(DefaultListModel<String> taskListModel, ClientWindow parent) {
         this.taskListModel = taskListModel;
+        this.parent = parent;
     }
 
     @Override
@@ -35,8 +39,6 @@ public class GenerateScheduleButtonListener implements ActionListener {
                 tasks.add(task);
             }
         }
-
-        RestTemplate restTemplate = new RestTemplate();
 
         // Convert the tasks to JSON
         ObjectMapper objectMapper = new ObjectMapper();
@@ -55,7 +57,7 @@ public class GenerateScheduleButtonListener implements ActionListener {
             HttpEntity<String> requestEntity = new HttpEntity<>(tasksJSON, headers);
 
             //sending the post request
-            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8081/tasks/create", HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> response = parent.getRestTemplate().exchange("http://localhost:8081/tasks/create", HttpMethod.POST, requestEntity, String.class);
 
             //access the response body
             String responseBody = response.getBody();

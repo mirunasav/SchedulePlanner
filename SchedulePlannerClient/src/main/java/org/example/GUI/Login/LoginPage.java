@@ -1,17 +1,24 @@
 package org.example.GUI.Login;
 
-import org.example.GUI.ToDoList.ToDoListApp;
+import org.example.GUI.rest.ClientWindow;
+import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class LoginPage extends JFrame {
+public class LoginPage extends ClientWindow {
     private JTextField usernameTextField;
     private JPasswordField passwordField;
+    private RestTemplate restTemplate;
 
-    public LoginPage() {
+    @Override
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
+    public LoginPage(RestTemplate restTemplate) {
         // Set up the frame
         setTitle("Schedule Planner");
         setSize(900, 700);
@@ -84,7 +91,7 @@ public class LoginPage extends JFrame {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Align buttons to the left
         buttonsPanel.setBackground(Color.WHITE); // Set the background color to white
         registerButton.addActionListener(new RegisterButtonListener());
-        loginButton.addActionListener(new LoginButtonListener());
+        loginButton.addActionListener(new LoginButtonListener(usernameTextField, passwordField, this));
         buttonsPanel.add(registerButton);
         buttonsPanel.add(loginButton);
 
@@ -100,6 +107,7 @@ public class LoginPage extends JFrame {
         add(mainPanel);
 
         setVisible(true);
+        this.restTemplate =restTemplate;
     }
 
     private class RegisterButtonListener implements ActionListener {
@@ -116,47 +124,4 @@ public class LoginPage extends JFrame {
         }
     }
 
-    private class LoginButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                String username = usernameTextField.getText();
-            } catch (NullPointerException ex) {
-                JOptionPane.showMessageDialog(LoginPage.this, "Username cannot be empty", "Login Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String password = new String(passwordField.getPassword());
-            if(password.equals("")){
-                JOptionPane.showMessageDialog(LoginPage.this, "Password cannot be empty", "Login Error", JOptionPane.ERROR_MESSAGE);
-                return;
-        }
-
-        // Clear the text fields after login
-            usernameTextField.setText("");
-            passwordField.setText("");
-
-        boolean loginSuccessful = true;
-
-            if(loginSuccessful)
-
-        {
-            // Close the login page
-            dispose();
-            // Open the to-do list page
-            ToDoListApp toDoListApp = new ToDoListApp();
-            toDoListApp.setVisible(true);
-        } else
-
-        {
-            // Show error message or handle failed login
-            JOptionPane.showMessageDialog(LoginPage.this, "Login failed. Please try again.", "Login Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-}
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginPage::new);
-    }
 }

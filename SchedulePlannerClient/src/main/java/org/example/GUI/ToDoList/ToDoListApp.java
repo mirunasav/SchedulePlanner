@@ -1,7 +1,10 @@
 package org.example.GUI.ToDoList;
 
 import org.example.GUI.Login.LoginPage;
+import org.example.GUI.models.Task;
+import org.example.GUI.rest.ClientWindow;
 import org.example.GUI.utilities.Utils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,12 +15,19 @@ import java.awt.event.ComponentEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class ToDoListApp extends JFrame {
+public class ToDoListApp extends ClientWindow {
     private DefaultListModel<String> taskListModel;
     private JList<String> taskList;
+    private RestTemplate restTemplate;
+
 
     public DefaultListModel<String> getTaskListModel() {
         return taskListModel;
+    }
+
+    @Override
+    public RestTemplate getRestTemplate() {
+        return this.restTemplate;
     }
 
     private class CustomListCellRenderer extends DefaultListCellRenderer {
@@ -127,11 +137,11 @@ public class ToDoListApp extends JFrame {
         }
     }
 
-    public ToDoListApp() {
+    public ToDoListApp(RestTemplate restTemplate) {
         setTitle("To-Do List App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
+        this.restTemplate = restTemplate;
         // Create the list model and JList
         taskListModel = new DefaultListModel<>();
         taskList = new JList<>(taskListModel);
@@ -157,7 +167,7 @@ public class ToDoListApp extends JFrame {
             }
         });
 
-        addButton(buttonPanel, "Generate Schedule", new GenerateScheduleButtonListener(taskListModel));
+        addButton(buttonPanel, "Generate Schedule", new GenerateScheduleButtonListener(taskListModel,this));
 
         addButton(buttonPanel, "Logout", new ActionListener() {
             @Override
@@ -165,7 +175,7 @@ public class ToDoListApp extends JFrame {
                 // TODO: Implement logout logic
                 JOptionPane.showMessageDialog(ToDoListApp.this, "Logged out!");
                 dispose();
-                LoginPage loginPage = new LoginPage();
+                LoginPage loginPage = new LoginPage(restTemplate);
                 loginPage.setVisible(true);
             }
         });
