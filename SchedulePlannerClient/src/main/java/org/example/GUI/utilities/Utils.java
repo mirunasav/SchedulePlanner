@@ -1,6 +1,6 @@
 package org.example.GUI.utilities;
 
-import org.example.GUI.Task;
+import org.example.GUI.ToDoList.Task;
 import org.example.GUI.exceptions.InvalidDurationException;
 import org.example.GUI.exceptions.InvalidIntervalException;
 
