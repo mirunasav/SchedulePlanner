@@ -90,7 +90,7 @@ public class LoginPage extends ClientWindow {
         // Add the buttons panel to the login/signup container
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Align buttons to the left
         buttonsPanel.setBackground(Color.WHITE); // Set the background color to white
-        registerButton.addActionListener(new RegisterButtonListener());
+        registerButton.addActionListener(new RegisterButtonListener(usernameTextField, passwordField,this));
         loginButton.addActionListener(new LoginButtonListener(usernameTextField, passwordField, this));
         buttonsPanel.add(registerButton);
         buttonsPanel.add(loginButton);
@@ -108,20 +108,6 @@ public class LoginPage extends ClientWindow {
 
         setVisible(true);
         this.restTemplate =restTemplate;
-    }
-
-    private class RegisterButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // Perform register logic here
-            String username = usernameTextField.getText();
-            String password = new String(passwordField.getPassword());
-
-            // Clear the text fields after registration
-            usernameTextField.setText("");
-            passwordField.setText("");
-
-        }
     }
 
 }

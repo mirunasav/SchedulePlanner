@@ -1,21 +1,27 @@
 package org.example.GUI.Login;
 
+import org.example.GUI.ToDoList.ToDoListApp;
+import org.example.GUI.rest.ClientWindow;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class RegisterButtonListener implements  ActionListener {
-    private JTextField usernameTextField;
-    private JPasswordField passwordField;
-    private JFrame parentFrame;
 
-    public RegisterButtonListener(JTextField usernameTextField, JPasswordField passwordField, JFrame parentFrame) {
-        this.usernameTextField = usernameTextField;
-        this.passwordField = passwordField;
-        this.parentFrame = parentFrame;
+public class RegisterButtonListener extends AuthenticationButtonListener{
+
+    public RegisterButtonListener(JTextField usernameTextField, JPasswordField passwordField, ClientWindow parentFrame) {
+        super(usernameTextField, passwordField, parentFrame);
     }
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
+    @Override
+    protected ResponseEntity<String> buildResponseEntity(HttpEntity<String> requestEntity) {
+        return  parentFrame.getRestTemplate().exchange("http://localhost:8081/login/register", HttpMethod.POST, requestEntity, String.class);
+    }
+
+    @Override
+    protected void processResponseBody(String responseBody) {
+        JOptionPane.showMessageDialog(parentFrame, "You are registered!", "Login Error", JOptionPane.ERROR_MESSAGE);
     }
 }

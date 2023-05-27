@@ -11,7 +11,7 @@ public class Task {
     private String formattedStartTime;
     private String formattedEndTime;
 
-    // Constructor
+
     public Task(String name, int durationMinutes, Date startTime, Date endTime) {
         this.name = name;
         this.durationMinutes = durationMinutes;
@@ -22,7 +22,6 @@ public class Task {
         this.formattedEndTime = dateFormat.format(endTime);
     }
 
-    // Getters and setters
 
     public String getName() {
         return name;
