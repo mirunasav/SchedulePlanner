@@ -8,14 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/login")
 public class AuthenticationController {
 
-    @PostMapping(path = "/generateHashAndSalt")
+    @PostMapping(path = "/register")
     public UserModel createNewUser(@RequestBody CredentialsModel credentialsModel) {
         return RegistrationService.registerUser(credentialsModel);
     }
@@ -38,7 +36,7 @@ public class AuthenticationController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username is incorrect!");
             }
             case VALID_CREDENTIALS -> {
-                return ResponseEntity.ok("You are logged in!");
+                return ResponseEntity.status(HttpStatus.ACCEPTED).body("You are logged in!");
             }
             case INCORRECT_PASSWORD -> {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password!");
