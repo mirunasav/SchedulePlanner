@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,7 +58,7 @@ public class GenerateScheduleButtonListener implements ActionListener {
             HttpEntity<String> requestEntity = new HttpEntity<>(tasksJSON, headers);
 
             //sending the post request
-            ResponseEntity<String> response = parent.getRestTemplate().exchange("http://localhost:8081/tasks/create", HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> response = parent.getRestTemplate().exchange("http://localhost:6969/schedules/activities", HttpMethod.POST, requestEntity, String.class);
 
             //access the response body
             String responseBody = response.getBody();
@@ -114,14 +116,12 @@ public class GenerateScheduleButtonListener implements ActionListener {
         int endTimeEndIndex = taskDetails.indexOf(")"); // Find the index before the closing parenthesis
         String endTimeString = taskDetails.substring(endTimeStartIndex, endTimeEndIndex);
 
-        // Parse the start time and end time using a SimpleDateFormat
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        Date startTime;
-        Date endTime;
+        // Parse the start time and end time
+        LocalTime startTime, endTime;
         try {
-            startTime = timeFormat.parse(startTimeString);
-            endTime = timeFormat.parse(endTimeString);
-        } catch (ParseException e) {
+            startTime = LocalTime.parse(startTimeString);
+            endTime = LocalTime.parse(endTimeString);
+        } catch (DateTimeParseException e) {
             e.printStackTrace();
             return null; // Return null if there's an error parsing the times
         }

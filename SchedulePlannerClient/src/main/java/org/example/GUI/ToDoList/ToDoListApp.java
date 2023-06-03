@@ -1,9 +1,16 @@
 package org.example.GUI.ToDoList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.GUI.Login.LoginPage;
+import org.example.GUI.models.Schedule;
 import org.example.GUI.models.Task;
+import org.example.GUI.requests.GetScheduleIdRequest;
 import org.example.GUI.rest.ClientWindow;
 import org.example.GUI.utilities.Utils;
+import org.springframework.http.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
@@ -14,12 +21,17 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ToDoListApp extends ClientWindow {
     private DefaultListModel<String> taskListModel;
     private JList<String> taskList;
     private RestTemplate restTemplate;
-
+    private Long userId;
+    private List<Schedule> scheduleList;
+    private Long scheduleId; //current operating  schedule
 
     public DefaultListModel<String> getTaskListModel() {
         return taskListModel;
@@ -116,19 +128,19 @@ public class ToDoListApp extends ClientWindow {
                 //so that in generateSchedule, I don't need to parse the tasks anymore
                 //to the taskListModel i can add task.toString();
 
-                try {
+               /* try {
                     Utils.validateTask(new Task(taskName, totalMinutesDuration, timeFormat.parse(startTime), timeFormat.parse(endTime)));
-                    // Add the task to the list
+                    // Add the task to the list*/
                     String taskDetails = taskName + " (Duration: " + hours + " hours " + minutes + " minutes, Start: " + startTime + ", End: " + endTime + ")";
                     taskListModel.addElement(taskDetails);
-                } catch (ParseException ex) {
+              /*  } catch (ParseException ex) {
                     ex.printStackTrace();
                 }
                 catch (Exception ex){
                     StringBuilder errorMessage = new StringBuilder("Invalid task:");
                     errorMessage.append(ex.getMessage());
                     JOptionPane.showMessageDialog(null,errorMessage.toString(),"Invalid Task", JOptionPane.ERROR_MESSAGE);
-                }
+                }*/
             }
         }
 
@@ -137,7 +149,9 @@ public class ToDoListApp extends ClientWindow {
         }
     }
 
-    public ToDoListApp(RestTemplate restTemplate) {
+    public ToDoListApp(RestTemplate restTemplate, Long id) {
+        this.userId = id;
+        this.scheduleList = new LinkedList<>();
         setTitle("To-Do List App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -197,6 +211,11 @@ public class ToDoListApp extends ClientWindow {
         setSize(900, 700);
         setLocationRelativeTo(null); // Center the frame on the screen
         setVisible(true);
+
+        //make a request to get schedule id
+        //get all schedule
+        getScheduleIdRequest();
+        //load the first one by setting id = ... and making the tasks shown to be the ones in the schedule
     }
 
     private void addButton(JPanel panel, String text, ActionListener actionListener) {
@@ -210,6 +229,41 @@ public class ToDoListApp extends ClientWindow {
         constraints.insets = new Insets(5, 0, 5, 0);
 
         panel.add(button, constraints);
+    }
+
+    private void getScheduleIdRequest (){
+        ObjectMapper objectMapper = new ObjectMapper();
+        GetScheduleIdRequest request = new GetScheduleIdRequest();
+        request.setUserId (userId);
+        String requestAsJson = "";
+        try {
+            requestAsJson = objectMapper.writeValueAsString(request);
+        } catch (JsonProcessingException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            //creating
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestAsJson,headers);
+
+            //sending the post request ; this throws an error when the response is not accepted
+            ResponseEntity<String> response = restTemplate.exchange("http://localhost:6969/schedules/create", HttpMethod.POST, requestEntity, String.class);
+
+            //access the response body
+            var jsonNode = objectMapper.readValue(response.getBody(), JsonNode.class);
+            //create new schedule
+            Schedule schedule = new Schedule(jsonNode.get("id").asLong(),userId);
+            //add it to the list
+            this.scheduleList.add(schedule);
+            //add the id
+            this.scheduleId = schedule.getId();
+
+
+        } catch (RestClientException | JsonProcessingException ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

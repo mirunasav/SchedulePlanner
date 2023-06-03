@@ -1,10 +1,7 @@
 package com.example.scheduleplannerserver.jpa.controllers;
 
-import com.example.scheduleplannerserver.Authentication.AuthenticationService;
-import com.example.scheduleplannerserver.Authentication.RegistrationService;
 import com.example.scheduleplannerserver.jpa.models.UserModel;
 import com.example.scheduleplannerserver.jpa.models.CredentialsModel;
-import com.example.scheduleplannerserver.jpa.services.ScheduleActivitiesService;
 import com.example.scheduleplannerserver.jpa.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,31 +13,25 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/login")
 public class AuthenticationController {
-    private final UserService scheduleActivitiesService;
+    private final UserService userService;
 
     @Autowired
-    public ScheduleActivitiesController(ScheduleActivitiesService scheduleActivitiesService) {
-        this.scheduleActivitiesService = scheduleActivitiesService;
+    public AuthenticationController(UserService userService) {
+        this.userService = userService;
     }
     @PostMapping(path = "/register")
     public UserModel createNewUser(@RequestBody CredentialsModel credentialsModel) {
-        return RegistrationService.registerUser(credentialsModel);
+        return userService.registerUser(credentialsModel);
     }
 
     @GetMapping (path = "/getUser/{username}")
     public UserModel getUser (@PathVariable String username){
-        try{
-            var userModelOptional =
-        }
-        catch (SQLException ex){
-            ex.printStackTrace();
-            return null;
-        }
+            return userService.getUserByUsername(username);
     }
 
     @PostMapping
     public ResponseEntity<String> login (@RequestBody CredentialsModel credentials){
-        switch(AuthenticationService.areCredentialsValid(credentials)){
+        switch(userService.areCredentialsValid(credentials)){
             case NO_SUCH_USER -> {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Username is incorrect!");
             }

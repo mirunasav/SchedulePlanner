@@ -30,4 +30,12 @@ public class ScheduleModel {
     public void setUserId(Long userid) {
         this.userId = userid;
     }
+
+    public List<ScheduleActivities> getScheduleActivities() {
+        return scheduleActivities;
+    }
+
+    public void setScheduleActivities(List<ScheduleActivities> scheduleActivities) {
+        this.scheduleActivities = scheduleActivities;
+    }
 }

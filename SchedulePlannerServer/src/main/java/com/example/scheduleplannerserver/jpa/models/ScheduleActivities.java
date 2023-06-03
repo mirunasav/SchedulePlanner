@@ -2,6 +2,7 @@ package com.example.scheduleplannerserver.jpa.models;
 
 import jakarta.persistence.*;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
@@ -27,5 +28,71 @@ public class ScheduleActivities {
     @Column(name = "end_time")
     private Date endTime;
 
+    private String formattedStartTime;
+    private String formattedEndTime;
 
+    public SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+    public String getFormattedStartTime() {
+        return formattedStartTime;
+    }
+
+    public void setFormattedStartTime(String formattedStartTime) {
+        this.formattedStartTime = formattedStartTime;
+    }
+
+    public String getFormattedEndTime() {
+        return formattedEndTime;
+    }
+
+    public void setFormattedEndTime(String formattedEndTime) {
+        this.formattedEndTime = formattedEndTime;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ScheduleModel getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(ScheduleModel schedule) {
+        this.schedule = schedule;
+    }
+
+    public String getActivityName() {
+        return activityName;
+    }
+
+    public void setActivityName(String activityName) {
+        this.activityName = activityName;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 }

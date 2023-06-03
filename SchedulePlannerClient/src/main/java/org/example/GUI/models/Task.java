@@ -1,25 +1,20 @@
 package org.example.GUI.models;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Date;
 
 public class Task {
     private String name;
     private int durationMinutes;
-    private Date startTime;
-    private Date endTime;
-    private String formattedStartTime;
-    private String formattedEndTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
-
-    public Task(String name, int durationMinutes, Date startTime, Date endTime) {
+    public Task(String name, int durationMinutes, LocalTime startTime, LocalTime endTime) {
         this.name = name;
         this.durationMinutes = durationMinutes;
         this.startTime = startTime;
         this.endTime = endTime;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        this.formattedStartTime = dateFormat.format(startTime);
-        this.formattedEndTime = dateFormat.format(endTime);
     }
 
 
@@ -39,35 +34,20 @@ public class Task {
         this.durationMinutes = durationMinutes;
     }
 
-    public Date getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 
-    public String getFormattedStartTime() {
-        return formattedStartTime;
-    }
-
-    public void setFormattedStartTime(String formattedStartTime) {
-        this.formattedStartTime = formattedStartTime;
-    }
-
-    public String getFormattedEndTime() {
-        return formattedEndTime;
-    }
-
-    public void setFormattedEndTime(String formattedEndTime) {
-        this.formattedEndTime = formattedEndTime;
-    }
 }

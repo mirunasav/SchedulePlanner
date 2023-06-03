@@ -39,7 +39,7 @@ public class ScheduleService {
 
     public String deleteSchedule(int id) {
         scheduleRepository.deleteById(id);
-        return "product removed !! " + id;
+        return "schedule removed  " + id;
     }
 
     public ScheduleModel updateSchedule(ScheduleModel scheduleModel) {

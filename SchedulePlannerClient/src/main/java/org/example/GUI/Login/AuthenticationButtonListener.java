@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 public abstract class  AuthenticationButtonListener implements ActionListener {
     protected JTextField usernameTextField;
     protected JPasswordField passwordField;
+    protected String username;
     protected ClientWindow parentFrame;
 
     public AuthenticationButtonListener(JTextField usernameTextField, JPasswordField passwordField, ClientWindow parentFrame) {
@@ -29,6 +30,7 @@ public abstract class  AuthenticationButtonListener implements ActionListener {
             JOptionPane.showMessageDialog(parentFrame, "Username cannot be empty", "Login Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        this.username = username;
         String password = new String(passwordField.getPassword());
         if (password.equals("")) {
             JOptionPane.showMessageDialog(parentFrame, "Password cannot be empty", "Login Error", JOptionPane.ERROR_MESSAGE);
