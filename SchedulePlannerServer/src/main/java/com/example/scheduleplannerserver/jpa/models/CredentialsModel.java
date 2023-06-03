@@ -1,4 +1,4 @@
-package com.example.scheduleplannerserver.models;
+package com.example.scheduleplannerserver.jpa.models;
 
 public class CredentialsModel {
     private String username;

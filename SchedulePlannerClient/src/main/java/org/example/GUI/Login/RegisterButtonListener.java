@@ -22,6 +22,6 @@ public class RegisterButtonListener extends AuthenticationButtonListener{
 
     @Override
     protected void processResponseBody(String responseBody) {
-        JOptionPane.showMessageDialog(parentFrame, "You are registered!", "Login Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(parentFrame, "You are registered!", "Register Successful", JOptionPane.INFORMATION_MESSAGE);
     }
 }

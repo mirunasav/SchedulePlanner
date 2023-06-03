@@ -63,7 +63,7 @@ public abstract class  AuthenticationButtonListener implements ActionListener {
             String responseBody = response.getBody();
             assert responseBody != null;
             this.processResponseBody(responseBody);
-            HttpStatusCode status = response.getStatusCode();
+           // HttpStatusCode status = response.getStatusCode();
             //process the response
             // this.processResponseStatus((HttpStatus) status);
         } catch (RestClientException ex) {

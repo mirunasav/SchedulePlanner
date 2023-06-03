@@ -1,6 +1,6 @@
 package com.example.scheduleplannerserver.Utils;
 
-import com.example.scheduleplannerserver.models.TaskModel;
+import com.example.scheduleplannerserver.jpa.models.TaskModel;
 
 import java.util.Collections;
 import java.util.LinkedList;

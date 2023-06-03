@@ -1,8 +1,12 @@
-package com.example.scheduleplannerserver.Authentication;
+package com.example.scheduleplannerserver.jpa.controllers;
 
-import com.example.scheduleplannerserver.models.CredentialsModel;
-import com.example.scheduleplannerserver.models.UserModel;
-import com.example.scheduleplannerserver.repositories.UserRepository;
+import com.example.scheduleplannerserver.Authentication.AuthenticationService;
+import com.example.scheduleplannerserver.Authentication.RegistrationService;
+import com.example.scheduleplannerserver.jpa.models.UserModel;
+import com.example.scheduleplannerserver.jpa.models.CredentialsModel;
+import com.example.scheduleplannerserver.jpa.services.ScheduleActivitiesService;
+import com.example.scheduleplannerserver.jpa.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +16,12 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/login")
 public class AuthenticationController {
+    private final UserService scheduleActivitiesService;
 
+    @Autowired
+    public ScheduleActivitiesController(ScheduleActivitiesService scheduleActivitiesService) {
+        this.scheduleActivitiesService = scheduleActivitiesService;
+    }
     @PostMapping(path = "/register")
     public UserModel createNewUser(@RequestBody CredentialsModel credentialsModel) {
         return RegistrationService.registerUser(credentialsModel);
@@ -21,7 +30,7 @@ public class AuthenticationController {
     @GetMapping (path = "/getUser/{username}")
     public UserModel getUser (@PathVariable String username){
         try{
-            return UserRepository.getUser(username);
+            var userModelOptional =
         }
         catch (SQLException ex){
             ex.printStackTrace();

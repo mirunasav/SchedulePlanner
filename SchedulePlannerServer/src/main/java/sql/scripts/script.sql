@@ -25,6 +25,15 @@ create table ScheduleTasks(
          REFERENCES Schedules(ScheduleID)
 );
 alter table Schedules
-    rename column scheduleid to id;
+    rename column UserID to user_id;
+insert into Schedules values (1,2)
+select *
+from Schedules
+select * from schedules;
+drop table scheduletasks;
+drop  table  schedule_activities
 
-select * from Schedules
+
+drop table users
+
+select * from schedules

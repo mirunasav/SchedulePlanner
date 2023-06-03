@@ -6,7 +6,6 @@ import org.example.GUI.models.Task;
 import org.example.GUI.rest.ClientWindow;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

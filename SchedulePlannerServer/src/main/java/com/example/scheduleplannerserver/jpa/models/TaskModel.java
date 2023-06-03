@@ -1,4 +1,4 @@
-package com.example.scheduleplannerserver.models;
+package com.example.scheduleplannerserver.jpa.models;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

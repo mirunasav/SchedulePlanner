@@ -1,9 +1,9 @@
 package com.example.scheduleplannerserver.Authentication;
 
 import com.example.scheduleplannerserver.Utils.CredentialsMessages;
-import com.example.scheduleplannerserver.models.CredentialsModel;
-import com.example.scheduleplannerserver.models.UserModel;
-import com.example.scheduleplannerserver.repositories.UserRepository;
+import com.example.scheduleplannerserver.jpa.models.CredentialsModel;
+import com.example.scheduleplannerserver.jpa.models.UserModel;
+import com.example.scheduleplannerserver.jpa.repositories.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.sql.SQLException;
