@@ -6,8 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.GUI.Login.LoginPage;
 import org.example.GUI.models.Schedule;
 import org.example.GUI.models.Task;
-import org.example.GUI.requests.GetScheduleIdRequest;
+import org.example.GUI.models.UserIdObject;
 import org.example.GUI.rest.ClientWindow;
+import org.example.GUI.utilities.ToDoListRequestMaker;
 import org.example.GUI.utilities.Utils;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
@@ -19,10 +20,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 import java.util.List;
 
 public class ToDoListApp extends ClientWindow {
@@ -31,7 +33,7 @@ public class ToDoListApp extends ClientWindow {
     private RestTemplate restTemplate;
     private Long userId;
     private List<Schedule> scheduleList;
-    private Long scheduleId; //current operating  schedule
+    private Long scheduleId = 0L; //current operating  schedule
 
     public DefaultListModel<String> getTaskListModel() {
         return taskListModel;
@@ -124,23 +126,17 @@ public class ToDoListApp extends ClientWindow {
                 String startTime = startTimeField.getText();
                 String endTime = endTimeField.getText();
                 SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");//make this a constant somewhere
-                //store the tasks in a list of tasks since i am already making them into objects
-                //so that in generateSchedule, I don't need to parse the tasks anymore
-                //to the taskListModel i can add task.toString();
 
-               /* try {
-                    Utils.validateTask(new Task(taskName, totalMinutesDuration, timeFormat.parse(startTime), timeFormat.parse(endTime)));
+                try {
+                    Utils.validateTask(new Task(taskName, totalMinutesDuration, LocalTime.parse(startTime), LocalTime.parse(endTime)));
                     // Add the task to the list*/
                     String taskDetails = taskName + " (Duration: " + hours + " hours " + minutes + " minutes, Start: " + startTime + ", End: " + endTime + ")";
                     taskListModel.addElement(taskDetails);
-              /*  } catch (ParseException ex) {
+                } catch (DateTimeParseException ex) {
                     ex.printStackTrace();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid task:" + ex.getMessage(), "Invalid Task", JOptionPane.ERROR_MESSAGE);
                 }
-                catch (Exception ex){
-                    StringBuilder errorMessage = new StringBuilder("Invalid task:");
-                    errorMessage.append(ex.getMessage());
-                    JOptionPane.showMessageDialog(null,errorMessage.toString(),"Invalid Task", JOptionPane.ERROR_MESSAGE);
-                }*/
             }
         }
 
@@ -181,7 +177,56 @@ public class ToDoListApp extends ClientWindow {
             }
         });
 
-        addButton(buttonPanel, "Generate Schedule", new GenerateScheduleButtonListener(taskListModel,this));
+        addButton(buttonPanel, "Generate Schedule", new GenerateScheduleButtonListener(taskListModel, this));
+        addButton(buttonPanel, "Save", new SaveScheduleButtonListener(this));
+
+        addButton(buttonPanel, "Next", new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //get next schedule id
+                //get current schedule index in the list
+                Optional<Schedule> nextScheduleId = scheduleList.stream()
+                        .filter(s -> Objects.equals(s.getId(), scheduleId)).findFirst();
+                if (nextScheduleId.isEmpty()) {
+                    return;
+                }
+                //altfel, iau indexul
+                var index = scheduleList.indexOf(nextScheduleId.get());
+                //iau urmatorul schedule
+                if (scheduleList.size() - 1 >= ++index) {
+                    scheduleId = scheduleList.get(index).getId();
+                    loadScheduleActivities(scheduleId);
+                    return;
+                }
+                JOptionPane.showMessageDialog(ToDoListApp.this, "You have reached the end of the list!");
+
+            }
+        });
+        addButton(buttonPanel, "Previous", new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //get next schedule id
+                //get current schedule index in the list
+                Optional<Schedule> nextScheduleId = scheduleList.stream()
+                        .filter(s -> Objects.equals(s.getId(), scheduleId)).findFirst();
+                if (nextScheduleId.isEmpty()) {
+                    return;//nu se intampla nimic
+                }
+
+                //altfel, iau indexul
+                var index = scheduleList.indexOf(nextScheduleId.get());
+                //iau precedentul schedule
+                if (--index > -1) {
+                    scheduleId = scheduleList.get(index).getId();
+                    loadScheduleActivities(scheduleId);
+                    return;
+                }
+                JOptionPane.showMessageDialog(ToDoListApp.this, "You have reached the beginning of the list!");
+
+            }
+        });
+        // addButton(buttonPanel, "New Schedule", new GenerateScheduleButtonListener(taskListModel, this));
+        addButton(buttonPanel, "Delete Schedule", new DeleteScheduleButtonListener(this));
 
         addButton(buttonPanel, "Logout", new ActionListener() {
             @Override
@@ -193,7 +238,6 @@ public class ToDoListApp extends ClientWindow {
                 loginPage.setVisible(true);
             }
         });
-
         // Add the button panel to the frame
         add(buttonPanel, BorderLayout.EAST);
 
@@ -212,10 +256,10 @@ public class ToDoListApp extends ClientWindow {
         setLocationRelativeTo(null); // Center the frame on the screen
         setVisible(true);
 
-        //make a request to get schedule id
-        //get all schedule
-        getScheduleIdRequest();
+        //make a request to get all schedules
+        ToDoListRequestMaker.getSchedulesRequest(this);
         //load the first one by setting id = ... and making the tasks shown to be the ones in the schedule
+        loadScheduleActivities(scheduleId);
     }
 
     private void addButton(JPanel panel, String text, ActionListener actionListener) {
@@ -231,39 +275,47 @@ public class ToDoListApp extends ClientWindow {
         panel.add(button, constraints);
     }
 
-    private void getScheduleIdRequest (){
-        ObjectMapper objectMapper = new ObjectMapper();
-        GetScheduleIdRequest request = new GetScheduleIdRequest();
-        request.setUserId (userId);
-        String requestAsJson = "";
-        try {
-            requestAsJson = objectMapper.writeValueAsString(request);
-        } catch (JsonProcessingException ex) {
-            ex.printStackTrace();
-        }
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            //creating
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestAsJson,headers);
-
-            //sending the post request ; this throws an error when the response is not accepted
-            ResponseEntity<String> response = restTemplate.exchange("http://localhost:6969/schedules/create", HttpMethod.POST, requestEntity, String.class);
-
-            //access the response body
-            var jsonNode = objectMapper.readValue(response.getBody(), JsonNode.class);
-            //create new schedule
-            Schedule schedule = new Schedule(jsonNode.get("id").asLong(),userId);
-            //add it to the list
-            this.scheduleList.add(schedule);
-            //add the id
-            this.scheduleId = schedule.getId();
-
-
-        } catch (RestClientException | JsonProcessingException ex) {
-            ex.printStackTrace();
-        }
+    public Long getScheduleId() {
+        return scheduleId;
     }
 
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    void loadScheduleActivities(Long scheduleId) {
+        //print all activities in the schedule
+        //find the schedule first
+        Optional<Schedule> scheduleOptional = scheduleList.stream()
+                .filter(s -> Objects.equals(s.getId(), scheduleId))
+                .findFirst();
+        if (scheduleOptional.isEmpty())
+            return;
+        taskListModel.clear();
+        //if the list of activities is not yet initialized( apparently the repository.save does not do that)
+        if(scheduleOptional.get().getScheduleActivities() == null)
+            scheduleOptional.get().setScheduleActivities(new LinkedList<>());
+        //if i have tasks in the schedule, show them on the screen
+        if (scheduleOptional.get().getScheduleActivities().size()>0)
+            for (Task task : scheduleOptional.get().getScheduleActivities()) {
+                taskListModel.addElement(task.toString());
+            }
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public List<Schedule> getScheduleList() {
+        return scheduleList;
+    }
+
+    public void setScheduleList(List<Schedule> scheduleList) {
+        this.scheduleList = scheduleList;
+    }
 }

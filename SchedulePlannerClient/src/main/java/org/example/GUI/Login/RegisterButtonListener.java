@@ -17,7 +17,7 @@ public class RegisterButtonListener extends AuthenticationButtonListener{
 
     @Override
     protected ResponseEntity<String> buildResponseEntity(HttpEntity<String> requestEntity) {
-        return  parentFrame.getRestTemplate().exchange("http://localhost:8081/login/register", HttpMethod.POST, requestEntity, String.class);
+        return  parentFrame.getRestTemplate().exchange("http://localhost:6969/login/register", HttpMethod.POST, requestEntity, String.class);
     }
 
     @Override

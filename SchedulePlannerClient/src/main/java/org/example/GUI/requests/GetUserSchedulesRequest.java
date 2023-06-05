@@ -4,7 +4,7 @@ import org.example.GUI.models.Task;
 
 import java.util.List;
 
-public class GenerateScheduleRequest {
+public class GetUserSchedulesRequest {
     private Long scheduleId;
     private List<Task> activities;
 

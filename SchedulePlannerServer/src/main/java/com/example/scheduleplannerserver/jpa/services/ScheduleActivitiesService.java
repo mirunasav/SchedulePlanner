@@ -8,36 +8,48 @@ import com.example.scheduleplannerserver.requests.CreateActivitiesRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class ScheduleActivitiesService {
     private final ScheduleActivitiesRepository scheduleActivitiesRepository;
     private final ScheduleRepository scheduleRepository;
+    private final ScheduleService scheduleService;
 
     @Autowired
     public ScheduleActivitiesService(ScheduleActivitiesRepository scheduleActivitiesRepository,
-                                     ScheduleRepository scheduleRepository) {
+                                     ScheduleRepository scheduleRepository,
+                                     ScheduleService scheduleService) {
         this.scheduleActivitiesRepository = scheduleActivitiesRepository;
         this.scheduleRepository = scheduleRepository;
+        this.scheduleService = scheduleService;
     }
 
 
-   public List<ScheduleActivities> addScheduleActivities(CreateActivitiesRequest scheduleActivities){
+    public List<ScheduleActivities> addScheduleActivities(CreateActivitiesRequest scheduleActivities) {
         //get id
-       Long scheduleId = scheduleActivities.getScheduleId();
-       var schedule = scheduleRepository.findById(scheduleId);
-       var scheduleObject = schedule.orElse(null);
-       if(scheduleObject != null){
-           //add activities to the list
-           for (var activity : scheduleActivities.getActivities()){
-               scheduleObject.getScheduleActivities().add(activity);
-               //for each activity add the schedule
-               activity.setSchedule(scheduleObject);
-           }
+        Long scheduleId = scheduleActivities.getScheduleId();
+        var schedule = scheduleRepository.findById(scheduleId);
+        var scheduleObject = schedule.orElse(null);
 
+        if (scheduleObject == null) {
+            scheduleObject = new ScheduleModel();
+            scheduleObject.setUserId(scheduleActivities.getUserId());
+            scheduleObject = scheduleService.saveSchedule(scheduleObject);
+        }
+        //add activities to the list
+        scheduleObject.getScheduleActivities().clear();
+        for (var activity : scheduleActivities.getActivities()) {
+            //for each activity add the schedule
+            //scheduleObject.getScheduleActivities().add(activity);
+            activity.setSchedule(scheduleObject);
+        }
 
-       }
-       return scheduleActivitiesRepository.saveAll(scheduleActivities.getActivities());
-   }
+        scheduleObject.getScheduleActivities().addAll(scheduleActivities.getActivities());
+        scheduleRepository.save(scheduleObject);
+
+        //else create a new object
+        return scheduleObject != null ? scheduleObject.getScheduleActivities() : Collections.emptyList();
+    }
 }

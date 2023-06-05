@@ -1,5 +1,7 @@
 package com.example.scheduleplannerserver.jpa.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.text.SimpleDateFormat;
@@ -14,6 +16,7 @@ public class ScheduleActivities {
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
+    @JsonIgnore
     private ScheduleModel schedule;
 
     @Column(name = "activity_name")
@@ -28,25 +31,9 @@ public class ScheduleActivities {
     @Column(name = "end_time")
     private Date endTime;
 
-    private String formattedStartTime;
-    private String formattedEndTime;
 
+    @JsonIgnore
     public SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    public String getFormattedStartTime() {
-        return formattedStartTime;
-    }
-
-    public void setFormattedStartTime(String formattedStartTime) {
-        this.formattedStartTime = formattedStartTime;
-    }
-
-    public String getFormattedEndTime() {
-        return formattedEndTime;
-    }
-
-    public void setFormattedEndTime(String formattedEndTime) {
-        this.formattedEndTime = formattedEndTime;
-    }
 
     public Long getId() {
         return id;

@@ -2,6 +2,7 @@ package com.example.scheduleplannerserver.jpa.models;
 
 import jakarta.persistence.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -13,7 +14,7 @@ public class ScheduleModel {
     @Column(name = "user_id")
     private Long userId;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
     private List<ScheduleActivities> scheduleActivities;
     public Long getId() {
         return id;
@@ -37,5 +38,7 @@ public class ScheduleModel {
 
     public void setScheduleActivities(List<ScheduleActivities> scheduleActivities) {
         this.scheduleActivities = scheduleActivities;
+
     }
+
 }

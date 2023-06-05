@@ -1,5 +1,6 @@
 package com.example.scheduleplannerserver.jpa.services;
 
+import com.example.scheduleplannerserver.jpa.models.ScheduleActivities;
 import com.example.scheduleplannerserver.jpa.models.ScheduleModel;
 import com.example.scheduleplannerserver.jpa.repositories.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,17 +29,18 @@ public class ScheduleService {
         return scheduleRepository.findAll();
     }
 
-    public ScheduleModel getScheduleById(int id) {
+    public ScheduleModel getScheduleById(Long id) {
         Optional<ScheduleModel> existingScheduleOptional = scheduleRepository.findById(id);
         return existingScheduleOptional.orElse(null);
     }
 
-    public ScheduleModel getScheduleByUserID(Long userID) {
-        return scheduleRepository.findByUserId(userID);
+    public List<ScheduleModel> getScheduleByUserID(Long userID) {
+        Optional<List<ScheduleModel>> existingScheduleOptional =  scheduleRepository.findByUserId(userID);
+        return existingScheduleOptional.orElse(null);
     }
 
-    public String deleteSchedule(int id) {
-        scheduleRepository.deleteById(id);
+    public String deleteSchedule(Long id) {
+        scheduleRepository.deleteById(Math.toIntExact(id));
         return "schedule removed  " + id;
     }
 
@@ -51,5 +53,14 @@ public class ScheduleService {
         }
         return null;
 
+    }
+    public List<ScheduleActivities> getActivities(Long id){
+        ScheduleModel schedule = this.getScheduleById(id);
+        if(schedule==null)
+            return null;
+        return schedule.getScheduleActivities();
+    }
+    public ScheduleModel updateScheduleModel(Long scheduleId, List<ScheduleActivities> activities){
+        return null;
     }
 }
