@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Entity
@@ -26,10 +27,18 @@ public class ScheduleActivities {
     private int duration;
 
     @Column(name = "start_time")
-    private Date startTime;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime startTime;
 
     @Column(name = "end_time")
-    private Date endTime;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime endTime;
+
+    @Transient
+    private LocalTime possibleStartTime;
+
+    @Transient
+    private LocalTime possibleEndTime;
 
 
     @JsonIgnore
@@ -67,19 +76,19 @@ public class ScheduleActivities {
         this.duration = duration;
     }
 
-    public Date getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 }

@@ -11,17 +11,17 @@ import java.time.format.DateTimeFormatter;
 
 public class TaskSerializer extends JsonSerializer<Task> {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     @Override
     public void serialize(Task task, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("activityName", task.getActivityName());
         jsonGenerator.writeNumberField("duration", task.getDuration());
-        LocalDateTime startTime = LocalDateTime.of(LocalDate.now(), task.getStartTime());
-        LocalDateTime endTime = LocalDateTime.of(LocalDate.now(), task.getEndTime());
-        jsonGenerator.writeStringField("startTime",startTime.format(FORMATTER));
-        jsonGenerator.writeStringField("endTime", endTime.format(FORMATTER));
+       // LocalDateTime startTime = LocalDateTime.of(LocalDate.now(), task.getStartTime());
+        //LocalDateTime endTime = LocalDateTime.of(LocalDate.now(), task.getEndTime());
+        jsonGenerator.writeStringField("startTime",task.getStartTime().format(FORMATTER));
+        jsonGenerator.writeStringField("endTime", task.getEndTime().format(FORMATTER));
         jsonGenerator.writeEndObject();
     }
 }

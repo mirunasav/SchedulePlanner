@@ -10,7 +10,9 @@ import org.example.GUI.models.UserIdObject;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ToDoListRequestMaker {
     public static void createScheduleRequest(ToDoListApp toDoListApp){
@@ -65,10 +67,11 @@ public class ToDoListRequestMaker {
                             long activityId = activityJson.get("id").asLong();
                             String activityName = activityJson.get("activityName").asText();
                             int duration = activityJson.get("duration").asInt();
-                            OffsetDateTime startTime = OffsetDateTime.parse(activityJson.get("startTime").asText());
-                            OffsetDateTime endTime = OffsetDateTime.parse(activityJson.get("endTime").asText());
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                            LocalTime startTime = LocalTime.parse(activityJson.get("startTime").asText(),formatter);
+                            LocalTime endTime = LocalTime.parse(activityJson.get("endTime").asText(),formatter);
 
-                            Task task = new Task(activityName, duration, startTime.toLocalTime(), endTime.toLocalTime());
+                            Task task = new Task(activityName, duration, startTime, endTime);
                             schedule.getScheduleActivities().add(task);
                         }
                     }
