@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "schedule_activities")
@@ -40,6 +41,34 @@ public class ScheduleActivities {
     @Transient
     private LocalTime possibleEndTime;
 
+    public LocalTime getPossibleStartTime() {
+        return possibleStartTime;
+    }
+
+    public void setPossibleStartTime(LocalTime possibleStartTime) {
+        this.possibleStartTime = possibleStartTime;
+    }
+
+    public LocalTime getPossibleEndTime() {
+        return possibleEndTime;
+    }
+
+    public void setPossibleEndTime(LocalTime possibleEndTime) {
+        this.possibleEndTime = possibleEndTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ScheduleActivities)) return false;
+        ScheduleActivities that = (ScheduleActivities) o;
+        return getDuration() == that.getDuration() && getActivityName().equals(that.getActivityName()) && getStartTime().equals(that.getStartTime()) && getEndTime().equals(that.getEndTime());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getActivityName(), getDuration(), getStartTime(), getEndTime());
+    }
 
     @JsonIgnore
     public SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");

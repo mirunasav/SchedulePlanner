@@ -1,5 +1,6 @@
 package com.example.scheduleplannerserver.jpa.controllers;
 
+import com.example.scheduleplannerserver.Utils.SchedulePlanner;
 import com.example.scheduleplannerserver.Utils.Utilities;
 import com.example.scheduleplannerserver.jpa.models.ScheduleActivities;
 import com.example.scheduleplannerserver.jpa.models.ScheduleModel;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/schedules/activities")
@@ -29,9 +31,9 @@ public class ScheduleActivitiesController {
     }
 
     @PutMapping(path = "/generate")
-    public List<Integer> generateSchedule ( @RequestBody List<ScheduleActivities> scheduleActivities){
+    public Set<List<ScheduleActivities>> generateSchedule (@RequestBody List<ScheduleActivities> scheduleActivities){
         //first of all,update the schedule
-        return Utilities.generatePermutation(scheduleActivities);
+        return new SchedulePlanner().generatePossibleSchedules(scheduleActivities);
     }
 
 }

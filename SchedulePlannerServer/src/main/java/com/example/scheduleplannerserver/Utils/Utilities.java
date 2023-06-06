@@ -2,10 +2,10 @@ package com.example.scheduleplannerserver.Utils;
 
 import com.example.scheduleplannerserver.jpa.models.ScheduleActivities;
 import com.example.scheduleplannerserver.jpa.models.TaskModel;
+import com.example.scheduleplannerserver.jpa.services.ScheduleService;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.time.LocalTime;
+import java.util.*;
 
 public class Utilities {
     public static List<Integer> generatePermutation(List<ScheduleActivities> listOfTasks) {
@@ -14,9 +14,13 @@ public class Utilities {
         //return the array
         List<Integer> array = new LinkedList<>();
 
-        for (int i = 0; i <listOfTasks.size(); i++)
+        for (int i = 0; i < listOfTasks.size(); i++)
             array.add(i);
         Collections.shuffle(array);
         return array;
     }
+
+
+
+
 }
