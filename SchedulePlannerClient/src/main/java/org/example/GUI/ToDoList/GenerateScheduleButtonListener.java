@@ -1,37 +1,42 @@
 package org.example.GUI.ToDoList;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.apache.commons.logging.Log;
 import org.example.GUI.models.Task;
-import org.example.GUI.requests.CreateActivitiesRequest;
-import org.example.GUI.rest.ClientWindow;
 import org.example.GUI.serializer.TaskSerializer;
 import org.example.GUI.utilities.Utils;
 import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class GenerateScheduleButtonListener implements ActionListener {
     private DefaultListModel<String> taskListModel;
-    private ClientWindow parent;
+    private ToDoListApp parent;
 
-    public GenerateScheduleButtonListener(DefaultListModel<String> taskListModel, ClientWindow parent) {
+    public GenerateScheduleButtonListener(DefaultListModel<String> taskListModel, ToDoListApp parent) {
         this.taskListModel = taskListModel;
         this.parent = parent;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        //check if there are any generated schedules in the cache
+        if (loadScheduleFromCache()) {
+            showTasksOnList(parent.getGeneratedSchedules().get(parent.getScheduleNumberFromGeneratedSchedules()));
+            return;
+        }
         // Get all the tasks from the list model
         List<Task> tasks = new ArrayList<>();
         for (int i = 0; i < taskListModel.size(); i++) {
@@ -71,28 +76,41 @@ public class GenerateScheduleButtonListener implements ActionListener {
 
             //show the new list on the screen
             this.processResponseBody(responseBody);
+
+            if (parent.getGeneratedSchedules().size() == 0) {
+                JOptionPane.showMessageDialog(parent, "There is no scheduling possible for the activities you provided", "Scheduling Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            //if there are schedulings
+            parent.setScheduleNumberFromGeneratedSchedules(0);
+            showTasksOnList(parent.getGeneratedSchedules().get(parent.getScheduleNumberFromGeneratedSchedules()));
+
+
         } catch (RestClientException | IOException ex) {
             ex.printStackTrace();
         }
     }
 
 
-    private void processResponseBody(String responseBody) {
+    private void processResponseBody(String responseBody) throws JsonProcessingException {
+        List<DefaultListModel<String>> generatedSchedules = new LinkedList<>();
         //extract numbers from response body
-        List<Integer> listOfNumbers = parseResponseBody(responseBody);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode baseArray = objectMapper.readTree(responseBody);
+        for (JsonNode innerArray : baseArray) {
+            DefaultListModel<String> activityList = new DefaultListModel<>();
+            for (JsonNode activityNode : innerArray) {
+                String activityName = activityNode.get("activityName").asText();
+                int duration = activityNode.get("duration").asInt();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                LocalTime startTime = LocalTime.parse(activityNode.get("startTime").asText(), formatter);
+                LocalTime endTime = LocalTime.parse(activityNode.get("endTime").asText(), formatter);
 
-        //create new default list model
-        DefaultListModel<String> newList = new DefaultListModel<>();
-
-        //populate the list with tasks
-        for (int i = 0; i < listOfNumbers.size(); i++) {
-            int index = listOfNumbers.get(i);
-            newList.add(i, taskListModel.get(index));
+                activityList.addElement(new Task(activityName, duration, startTime, endTime).toString());
+            }
+            generatedSchedules.add(activityList);
         }
-        taskListModel.clear();
-        for (int i = 0; i < newList.getSize(); i++) {
-            taskListModel.addElement(newList.getElementAt(i));
-        }
+        parent.setGeneratedSchedules(generatedSchedules);
     }
 
     private List<Integer> parseResponseBody(String responseBody) {
@@ -113,5 +131,31 @@ public class GenerateScheduleButtonListener implements ActionListener {
         for (String number : numbers)
             listOfNumbers.add(Integer.parseInt(number));
         return listOfNumbers;
+    }
+
+    private boolean loadScheduleFromCache() {
+        //if we don't have any cached,return
+        if (parent.getGeneratedSchedules().size() == 0)
+            return false;
+        //see if we have any more generated schedules
+        if (parent.getGeneratedSchedules().size() > parent.getScheduleNumberFromGeneratedSchedules() + 1) {
+            //we go further
+            parent.setScheduleNumberFromGeneratedSchedules(parent.getScheduleNumberFromGeneratedSchedules() + 1);
+            return true;
+        }
+        //if we reached the end of the generated schedules, reset the index
+        if (parent.getGeneratedSchedules().size() == parent.getScheduleNumberFromGeneratedSchedules() + 1) {
+            parent.setScheduleNumberFromGeneratedSchedules(0);
+            JOptionPane.showMessageDialog(parent, "You have reached the end of the generated schedules!", "Finished schedules", JOptionPane.INFORMATION_MESSAGE);
+            return true;
+        }
+        return false;
+    }
+
+    private void showTasksOnList(DefaultListModel<String> list) {
+        taskListModel.clear();
+        for (int i = 0; i < list.size(); i++) {
+            taskListModel.addElement(list.getElementAt(i));
+        }
     }
 }

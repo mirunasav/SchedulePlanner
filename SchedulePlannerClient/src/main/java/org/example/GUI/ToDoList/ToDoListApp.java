@@ -1,17 +1,11 @@
 package org.example.GUI.ToDoList;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.GUI.Login.LoginPage;
 import org.example.GUI.models.Schedule;
 import org.example.GUI.models.Task;
-import org.example.GUI.models.UserIdObject;
 import org.example.GUI.rest.ClientWindow;
 import org.example.GUI.utilities.ToDoListRequestMaker;
 import org.example.GUI.utilities.Utils;
-import org.springframework.http.*;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
@@ -22,7 +16,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.List;
@@ -34,6 +27,8 @@ public class ToDoListApp extends ClientWindow {
     private Long userId;
     private List<Schedule> scheduleList;
     private Long scheduleId = 0L; //current operating  schedule
+    private List<DefaultListModel<String>> generatedSchedules;
+    private int scheduleNumberFromGeneratedSchedules;
 
     public DefaultListModel<String> getTaskListModel() {
         return taskListModel;
@@ -148,6 +143,8 @@ public class ToDoListApp extends ClientWindow {
     public ToDoListApp(RestTemplate restTemplate, Long id) {
         this.userId = id;
         this.scheduleList = new LinkedList<>();
+        this.generatedSchedules = new LinkedList<>();
+
         setTitle("To-Do List App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -225,13 +222,13 @@ public class ToDoListApp extends ClientWindow {
 
             }
         });
-        // addButton(buttonPanel, "New Schedule", new GenerateScheduleButtonListener(taskListModel, this));
+
+        addButton(buttonPanel, "New Schedule", new NewScheduleButtonListener(this));
         addButton(buttonPanel, "Delete Schedule", new DeleteScheduleButtonListener(this));
 
         addButton(buttonPanel, "Logout", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Implement logout logic
                 JOptionPane.showMessageDialog(ToDoListApp.this, "Logged out!");
                 dispose();
                 LoginPage loginPage = new LoginPage(restTemplate);
@@ -296,6 +293,7 @@ public class ToDoListApp extends ClientWindow {
         //if the list of activities is not yet initialized( apparently the repository.save does not do that)
         if(scheduleOptional.get().getScheduleActivities() == null)
             scheduleOptional.get().setScheduleActivities(new LinkedList<>());
+
         //if i have tasks in the schedule, show them on the screen
         if (scheduleOptional.get().getScheduleActivities().size()>0)
             for (Task task : scheduleOptional.get().getScheduleActivities()) {
@@ -317,5 +315,21 @@ public class ToDoListApp extends ClientWindow {
 
     public void setScheduleList(List<Schedule> scheduleList) {
         this.scheduleList = scheduleList;
+    }
+
+    public List<DefaultListModel<String>> getGeneratedSchedules() {
+        return generatedSchedules;
+    }
+
+    public void setGeneratedSchedules(List<DefaultListModel<String>> generatedSchedules) {
+        this.generatedSchedules = generatedSchedules;
+    }
+
+    public int getScheduleNumberFromGeneratedSchedules() {
+        return scheduleNumberFromGeneratedSchedules;
+    }
+
+    public void setScheduleNumberFromGeneratedSchedules(int scheduleNumberFromGeneratedSchedules) {
+        this.scheduleNumberFromGeneratedSchedules = scheduleNumberFromGeneratedSchedules;
     }
 }

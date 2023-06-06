@@ -24,6 +24,10 @@ public class SaveScheduleButtonListener implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        //delete generated schedules from cache
+        if(parent.getGeneratedSchedules().size()>0){
+            parent.getGeneratedSchedules().clear();
+        }
        CreateActivitiesRequest createActivitiesRequest = new CreateActivitiesRequest(parent.getScheduleId(), parent.getUserId(),parent.getTaskListModel());
         //convert request as json
         ObjectMapper objectMapper = new ObjectMapper();
